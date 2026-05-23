@@ -157,7 +157,7 @@ function DumpBox() {
           className="w-full min-h-[120px] p-4 pr-24 rounded-2xl border-2 border-primary/20 bg-card text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-all text-base"
           disabled={isAiLoading}
         />
-        <div className="absolute right-3 top-3 flex flex-col gap-2">
+        <div className="absolute right-3 top-3 flex flex-col gap-2 md:flex">
           <Button
             size="sm"
             onClick={toggleVoice}
@@ -166,10 +166,11 @@ function DumpBox() {
           >
             {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </Button>
+          {/* Desktop submit button - hidden on mobile, shown on md+ */}
           <Button
             size="sm"
             onClick={handleDump}
-            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+            className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold hidden md:flex"
             disabled={isAiLoading || !text.trim()}
           >
             {isAiLoading ? (
@@ -180,8 +181,21 @@ function DumpBox() {
           </Button>
         </div>
       </div>
+      {/* Mobile-friendly Dump button - large and easy to tap */}
+      <Button
+        onClick={handleDump}
+        disabled={isAiLoading || !text.trim()}
+        className="w-full h-12 text-base font-bold gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 text-white shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform md:hidden"
+      >
+        {isAiLoading ? (
+          <><RefreshCw className="w-5 h-5 animate-spin" /> Memproses...</>
+        ) : (
+          <><Zap className="w-5 h-5" /> Dump!</>
+        )}
+      </Button>
       <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-        <span>Tekan <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">Enter</kbd> untuk dump</span>
+        <span className="hidden md:inline">Tekan <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono">Enter</kbd> untuk dump</span>
+        <span className="md:hidden">Tekan tombol <span className="font-bold text-primary">Dump!</span> di atas untuk menyimpan</span>
         {isListening && (
           <span className="text-destructive font-medium animate-pulse">🎤 Merekam...</span>
         )}
