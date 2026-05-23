@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useScrambleStore, type Category, type ScrambleItem } from '@/store/useScrambleStore'
 import { toast } from 'sonner'
@@ -957,14 +957,19 @@ function MoodTab() {
 // ==================== MAIN APP ====================
 export default function Home() {
   const { activeTab, setActiveTab, items } = useScrambleStore()
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === 'undefined') return false
+  const [isDark, setIsDark] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Read theme from localStorage ONLY on client after mount
+  // This avoids hydration mismatch between server (always light) and client
+  useEffect(() => {
+    setMounted(true)
     const saved = localStorage.getItem('scramble-egg-theme')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const dark = saved ? saved === 'dark' : prefersDark
+    setIsDark(dark)
     document.documentElement.classList.toggle('dark', dark)
-    return dark
-  })
+  }, [])
 
   const toggleTheme = () => {
     const newDark = !isDark
@@ -989,13 +994,11 @@ export default function Home() {
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="relative">
-                <img
-                  src="/logo.webp"
-                  alt="Scramble Egg"
-                  className="w-10 h-10 rounded-xl object-contain"
-                />
-              </div>
+              <img
+                src="/logo.webp"
+                alt="Scramble Egg"
+                className="h-10 w-auto object-contain"
+              />
               <div>
                 <h1 className="text-xl font-display tracking-wider leading-tight bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 dark:from-amber-400 dark:via-orange-400 dark:to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
                   Scramble Egg
@@ -1016,7 +1019,7 @@ export default function Home() {
                 onClick={toggleTheme}
                 className="rounded-xl h-9 w-9"
               >
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {mounted && isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
             </div>
           </div>
