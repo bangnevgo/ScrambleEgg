@@ -44,9 +44,17 @@ export const metadata: Metadata = {
   description: "The chaotic productivity app that embraces your mess. Dump ideas, tasks, and thoughts — AI auto-organizes everything. No empty state anxiety, just pure brain dump.",
   keywords: ["Scramble Egg", "productivity", "brain dump", "AI organizer", "task management", "idea capture"],
   authors: [{ name: "Scramble Egg Team" }],
+  manifest: "/manifest.json",
   icons: {
     icon: "/logo.webp",
+    apple: "/logo.webp",
   },
+  appleWebApp: {
+    capable: true,
+    title: "Scramble Egg",
+    statusBarStyle: "default",
+  },
+  themeColor: "#e07c3c",
   openGraph: {
     title: "Scramble Egg — Dump Your Brain, AI Organizes It",
     description: "The chaotic productivity app that embraces your mess.",

@@ -63,12 +63,18 @@ interface ScrambleState {
   setMoodLoading: (val: boolean) => void
 
   addItem: (text: string, category: Category, aiNote: string) => void
+  updateItemText: (id: string, text: string) => void
   updateItemCategory: (id: string, category: Category) => void
   deleteItem: (id: string) => void
+  bulkDelete: (ids: string[]) => void
+  bulkUpdateCategory: (ids: string[], category: Category) => void
+  restoreItem: (item: ScrambleItem) => void
+  reorderItems: (ids: string[]) => void
   toggleExpand: (id: string) => void
   addDigest: (digest: DigestData) => void
   addVision: (vision: VisionData) => void
   addMoodImage: (moodImage: MoodImage) => void
+  importStore: (data: { items: ScrambleItem[]; digests: DigestData[]; visions: VisionData[]; moodImages: MoodImage[] }) => void
   getFilteredItems: () => ScrambleItem[]
   getItemsByCategory: (category: Category) => ScrambleItem[]
 }
@@ -110,6 +116,14 @@ export const useScrambleStore = create<ScrambleState>()(
         set((state) => ({ items: [item, ...state.items] }))
       },
 
+      updateItemText: (id, text) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.id === id ? { ...item, text, updatedAt: new Date().toISOString() } : item
+          ),
+        }))
+      },
+
       updateItemCategory: (id, category) => {
         set((state) => ({
           items: state.items.map((item) =>
@@ -124,6 +138,35 @@ export const useScrambleStore = create<ScrambleState>()(
         set((state) => ({
           items: state.items.filter((item) => item.id !== id),
         }))
+      },
+
+      bulkDelete: (ids) => {
+        set((state) => ({
+          items: state.items.filter((item) => !ids.includes(item.id)),
+        }))
+      },
+
+      bulkUpdateCategory: (ids, category) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            ids.includes(item.id) ? { ...item, category, updatedAt: new Date().toISOString() } : item
+          ),
+        }))
+      },
+
+      restoreItem: (item) => {
+        set((state) => ({
+          items: [item, ...state.items],
+        }))
+      },
+
+      reorderItems: (ids) => {
+        set((state) => {
+          const map = new Map(state.items.map((i) => [i.id, i]))
+          const reordered = ids.map((id) => map.get(id)).filter(Boolean) as ScrambleItem[]
+          const remaining = state.items.filter((i) => !ids.includes(i.id))
+          return { items: [...reordered, ...remaining] }
+        })
       },
 
       toggleExpand: (id) => {
@@ -144,6 +187,15 @@ export const useScrambleStore = create<ScrambleState>()(
 
       addMoodImage: (moodImage) => {
         set((state) => ({ moodImages: [moodImage, ...state.moodImages] }))
+      },
+
+      importStore: (data) => {
+        set({
+          items: data.items.map((item) => ({ ...item, isExpanded: false })),
+          digests: data.digests,
+          visions: data.visions,
+          moodImages: data.moodImages,
+        })
       },
 
       getFilteredItems: () => {

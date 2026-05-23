@@ -8,13 +8,36 @@ import {
   Zap, Search, Eye, SmilePlus, Mic, MicOff, Trash2, CheckCircle2,
   ParkingCircle, Lightbulb, Clock, ChevronDown, Sparkles,
   Sun, Moon, Copy, Share2, RefreshCw, Brain, Target, Flame,
-  PartyPopper, Car, Coffee, Calendar
+  PartyPopper, Car, Coffee, Calendar, PenSquare, X, FileDown, FileUp, GripVertical, Check, CheckSquare
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu'
 
 // Category config
 const CATEGORY_CONFIG: Record<Category, { emoji: string; label: string; color: string; bgClass: string; icon: React.ElementType }> = {
@@ -56,6 +79,82 @@ function highlightText(text: string, query: string) {
   const parts = text.split(regex)
   return parts.map((part, i) =>
     regex.test(part) ? <mark key={i}>{part}</mark> : part
+  )
+}
+
+// ==================== EXPORT / IMPORT ====================
+function ExportDialog() {
+  const handleExport = useCallback(() => {
+    const { items, digests, visions, moodImages } = useScrambleStore.getState()
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      items,
+      digests,
+      visions,
+      moodImages,
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `scramble-egg-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success('Backup terdownload! 📦')
+  }, [])
+
+  const handleImport = useCallback(() => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json'
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target?.result as string)
+          if (!data.items || !Array.isArray(data.items)) {
+            toast.error('Format file tidak valid')
+            return
+          }
+          useScrambleStore.getState().importStore({
+            items: data.items,
+            digests: data.digests || [],
+            visions: data.visions || [],
+            moodImages: data.moodImages || [],
+          })
+          toast.success(`Berhasil import ${data.items.length} item! 📦`)
+        } catch {
+          toast.error('Gagal membaca file backup')
+        }
+      }
+      reader.readAsText(file)
+    }
+    input.click()
+  }, [])
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="rounded-xl h-9 w-9">
+          <FileDown className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel>Backup Data</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleExport} className="gap-2">
+          <FileDown className="w-4 h-4" />
+          Download Backup
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleImport} className="gap-2">
+          <FileUp className="w-4 h-4" />
+          Restore Backup
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -205,12 +304,54 @@ function DumpBox() {
 }
 
 // ==================== ITEM CARD ====================
-function ItemCard({ item, searchQuery }: { item: ScrambleItem; searchQuery: string }) {
-  const { updateItemCategory, deleteItem, toggleExpand } = useScrambleStore()
+function ItemCard({ item, searchQuery, isBulkMode, isSelected, onToggleSelect }: { item: ScrambleItem; searchQuery: string; isBulkMode?: boolean; isSelected?: boolean; onToggleSelect?: () => void }) {
+  const { updateItemText, updateItemCategory, deleteItem, restoreItem, toggleExpand } = useScrambleStore()
   const config = CATEGORY_CONFIG[item.category]
+  const [isEditing, setIsEditing] = useState(false)
+  const [editText, setEditText] = useState(item.text)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
+
+  const dragStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 'auto',
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.setSelectionRange(editText.length, editText.length)
+    }
+  }, [isEditing])
+
+  const saveEdit = useCallback(() => {
+    const trimmed = editText.trim()
+    if (trimmed && trimmed !== item.text) {
+      updateItemText(item.id, trimmed)
+      toast.success('Tersimpan! ✏️')
+    } else {
+      setEditText(item.text)
+    }
+    setIsEditing(false)
+  }, [editText, item.id, item.text, updateItemText])
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault()
+      saveEdit()
+    }
+    if (e.key === 'Escape') {
+      setEditText(item.text)
+      setIsEditing(false)
+    }
+  }
 
   return (
     <motion.div
+      ref={setNodeRef}
+      style={dragStyle}
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -220,14 +361,50 @@ function ItemCard({ item, searchQuery }: { item: ScrambleItem; searchQuery: stri
     >
       <Card
         className={`py-0 gap-0 shadow-none border transition-all duration-200 cursor-pointer ${config.bgClass} ${item.category === 'done' ? 'opacity-60' : ''}`}
-        onClick={() => toggleExpand(item.id)}
+        onClick={() => {
+          if (isBulkMode) { onToggleSelect?.(); return }
+          if (!isEditing) toggleExpand(item.id)
+        }}
       >
         <CardContent className="p-2.5">
           <div className="flex items-start gap-2">
+            {isBulkMode ? (
+              <div
+                className={`mt-0.5 w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
+                  isSelected ? 'bg-primary border-primary' : 'border-muted-foreground/40'
+                }`}
+                onClick={(e) => { e.stopPropagation(); onToggleSelect?.() }}
+              >
+                {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+              </div>
+            ) : (
+              <button
+                className="mt-1 shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors cursor-grab active:cursor-grabbing touch-none"
+                {...attributes}
+                {...listeners}
+              >
+                <GripVertical className="w-3.5 h-3.5" />
+              </button>
+            )}
             <span className="text-base mt-0.5 shrink-0 leading-none">{config.emoji}</span>
-            <p className={`text-sm leading-snug line-clamp-2 flex-1 min-w-0 ${item.category === 'done' ? 'line-through text-muted-foreground' : ''}`}>
-              {searchQuery ? highlightText(item.text, searchQuery) : item.text}
-            </p>
+            {isEditing ? (
+              <textarea
+                ref={inputRef}
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onBlur={saveEdit}
+                onKeyDown={handleKeyDown}
+                onClick={(e) => e.stopPropagation()}
+                className="flex-1 min-w-0 text-sm bg-transparent border border-primary/30 rounded-md p-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-primary/40"
+                rows={2}
+              />
+            ) : (
+              <p
+                className={`text-sm leading-snug flex-1 min-w-0 ${item.category === 'done' ? 'line-through text-muted-foreground' : ''}`}
+              >
+                {searchQuery ? highlightText(item.text, searchQuery) : item.text}
+              </p>
+            )}
             <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
               <Badge variant="secondary" className="text-[10px] h-5 px-1.5 whitespace-nowrap">
                 {config.emoji} {config.label}
@@ -258,6 +435,15 @@ function ItemCard({ item, searchQuery }: { item: ScrambleItem; searchQuery: stri
                   </p>
                 )}
                 <div className="flex flex-wrap gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                    onClick={(e) => { e.stopPropagation(); setEditText(item.text); setIsEditing(!isEditing) }}
+                  >
+                    {isEditing ? <X className="w-3 h-3" /> : <PenSquare className="w-3 h-3" />}
+                    {isEditing ? 'Batal' : 'Edit'}
+                  </Button>
                   {item.category !== 'done' && (
                     <Button
                       size="sm"
@@ -292,7 +478,15 @@ function ItemCard({ item, searchQuery }: { item: ScrambleItem; searchQuery: stri
                     size="sm"
                     variant="outline"
                     className="h-7 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10"
-                    onClick={(e) => { e.stopPropagation(); deleteItem(item.id) }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const deleted = { ...item }
+                      deleteItem(item.id)
+                      toast('Item dihapus', {
+                        action: { label: 'Undo', onClick: () => restoreItem(deleted) },
+                        duration: 5000,
+                      })
+                    }}
                   >
                     <Trash2 className="w-3 h-3" /> Hapus
                   </Button>
@@ -308,7 +502,12 @@ function ItemCard({ item, searchQuery }: { item: ScrambleItem; searchQuery: stri
 
 // ==================== ITEM LIST ====================
 function ItemList({ filterCategory, searchQuery }: { filterCategory?: Category; searchQuery?: string }) {
-  const { items } = useScrambleStore()
+  const { items, reorderItems, bulkDelete, bulkUpdateCategory } = useScrambleStore()
+  const [isBulkMode, setIsBulkMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  )
 
   const filtered = items
     .filter((item) => (!filterCategory || item.category === filterCategory))
@@ -317,6 +516,63 @@ function ItemList({ filterCategory, searchQuery }: { filterCategory?: Category; 
       const q = searchQuery.toLowerCase()
       return item.text.toLowerCase().includes(q) || item.aiNote.toLowerCase().includes(q) || item.category.toLowerCase().includes(q)
     })
+
+  const filteredIds = filtered.map((item) => item.id)
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = filteredIds.indexOf(active.id as string)
+    const newIndex = filteredIds.indexOf(over.id as string)
+    const newIds = arrayMove(filteredIds, oldIndex, newIndex)
+    reorderItems(newIds)
+  }, [filteredIds, reorderItems])
+
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(filteredIds))
+  }, [filteredIds])
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set())
+  }, [])
+
+  const exitBulkMode = useCallback(() => {
+    setIsBulkMode(false)
+    setSelectedIds(new Set())
+  }, [])
+
+  const handleBulkDelete = useCallback(() => {
+    const ids = Array.from(selectedIds)
+    if (ids.length === 0) return
+    bulkDelete(ids)
+    toast.success(`${ids.length} item dihapus! 🗑️`)
+    setSelectedIds(new Set())
+  }, [selectedIds, bulkDelete])
+
+  const handleBulkDone = useCallback(() => {
+    const ids = Array.from(selectedIds)
+    if (ids.length === 0) return
+    bulkUpdateCategory(ids, 'done')
+    toast.success(`${ids.length} item ditandai Done! ✅`)
+    setSelectedIds(new Set())
+  }, [selectedIds, bulkUpdateCategory])
+
+  const handleBulkParkir = useCallback(() => {
+    const ids = Array.from(selectedIds)
+    if (ids.length === 0) return
+    bulkUpdateCategory(ids, 'parking')
+    toast.success(`${ids.length} item diparkir! 🅿️`)
+    setSelectedIds(new Set())
+  }, [selectedIds, bulkUpdateCategory])
 
   if (filtered.length === 0) {
     return (
@@ -368,14 +624,110 @@ function ItemList({ filterCategory, searchQuery }: { filterCategory?: Category; 
     )
   }
 
+  const numSelected = selectedIds.size
+
   return (
-    <div className="space-y-2 max-h-[65vh] overflow-y-auto custom-scrollbar">
-      <AnimatePresence mode="popLayout">
-        {filtered.map((item) => (
-          <ItemCard key={item.id} item={item} searchQuery={searchQuery || ''} />
-        ))}
+    <>
+      <div className="flex items-center justify-end mb-1">
+        {isBulkMode ? (
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs"
+              onClick={selectAll}
+            >
+              Select All
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs text-destructive"
+              onClick={exitBulkMode}
+            >
+              <X className="w-3 h-3 mr-1" /> Cancel
+            </Button>
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 text-xs"
+            onClick={() => setIsBulkMode(true)}
+          >
+            <CheckSquare className="w-3 h-3 mr-1" /> Select
+          </Button>
+        )}
+      </div>
+      <div className="space-y-2 max-h-[65vh] overflow-y-auto custom-scrollbar">
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={filteredIds} strategy={verticalListSortingStrategy}>
+            <AnimatePresence mode="popLayout">
+              {filtered.map((item) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  searchQuery={searchQuery || ''}
+                  isBulkMode={isBulkMode}
+                  isSelected={selectedIds.has(item.id)}
+                  onToggleSelect={() => toggleSelection(item.id)}
+                />
+              ))}
+            </AnimatePresence>
+          </SortableContext>
+        </DndContext>
+      </div>
+
+      {/* Bulk action toolbar */}
+      <AnimatePresence>
+        {isBulkMode && numSelected > 0 && (
+          <motion.div
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            className="fixed bottom-0 left-0 right-0 z-50 p-3 pb-6"
+          >
+            <div className="max-w-2xl mx-auto glass bg-background/90 border border-border/50 rounded-2xl shadow-lg p-2 flex items-center gap-1 justify-center">
+              <span className="text-xs font-medium text-muted-foreground mr-2 whitespace-nowrap">
+                {numSelected} selected
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs gap-1 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                onClick={handleBulkDone}
+              >
+                <CheckCircle2 className="w-3 h-3" /> Done
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs gap-1 border-blue-400/30 text-blue-500 hover:bg-blue-400/10"
+                onClick={handleBulkParkir}
+              >
+                <ParkingCircle className="w-3 h-3" /> Parkir
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10"
+                onClick={handleBulkDelete}
+              >
+                <Trash2 className="w-3 h-3" /> Hapus
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 text-xs gap-1"
+                onClick={clearSelection}
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
-    </div>
+    </>
   )
 }
 
@@ -869,20 +1221,21 @@ function MoodTab() {
       <div className="grid grid-cols-1 gap-2">
         {MOOD_SCENES.map((scene) => {
           const Icon = sceneIcons[scene.id] || Coffee
+          const isDisabled = imageLoading || items.length < 2
           return (
-            <Button
+            <button
               key={scene.id}
-              variant="outline"
-              className="h-auto py-3 px-4 justify-start gap-3 rounded-xl border-2 hover:border-primary/50 transition-all"
+              disabled={isDisabled}
               onClick={() => generateMood(scene.id)}
-              disabled={imageLoading || items.length < 2}
+              className="flex items-center gap-3 rounded-xl border py-3 px-4 cursor-pointer transition-all bg-card text-foreground border-border hover:bg-accent hover:border-primary/40 disabled:opacity-100"
             >
-              <span className="text-2xl">{scene.emoji}</span>
-              <div className="text-left">
+              <span className="text-2xl shrink-0">{scene.emoji}</span>
+              <div className="text-left min-w-0 flex-1">
                 <p className="font-semibold text-sm">{scene.label}</p>
-                <p className="text-xs text-muted-foreground">{scene.desc}</p>
+                <p className="text-xs">{scene.desc}</p>
               </div>
-            </Button>
+              <Icon className="w-5 h-5 shrink-0 text-muted-foreground" />
+            </button>
           )
         })}
       </div>
@@ -1053,6 +1406,7 @@ export default function Home() {
                   {activeItems} active
                 </Badge>
               )}
+              <ExportDialog />
               <Button
                 variant="ghost"
                 size="icon"

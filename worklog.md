@@ -27,5 +27,64 @@ Stage Summary:
 - Complete Scramble Egg app with all requested features
 - Logo copied to /public/logo.webp
 - Custom CSS with egg-themed variables, animations, glass morphism
-- All API routes use z-ai-web-dev-sdk for AI features
+- All API routes used z-ai-web-dev-sdk for AI features
 - Data persisted in localStorage via Zustand persist middleware
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Deploy, fix AI provider, document
+
+Work Log:
+- Fixed API build script for Vercel (removed standalone cp command)
+- Created src/lib/ai.ts helper for AI client (file config + env var fallback)
+- Switched AI provider from OpenRouter → OpenCode Zen (DeepSeek V4 Flash Free)
+- Added explicit model parameter to all 4 API routes
+- Deployed to Vercel: https://scramble-egg.vercel.app
+- Tested all AI endpoints (categorize, digest, vision, mood) — all working
+- Updated README.md with accurate tech stack, setup guide, API docs, project structure
+
+Stage Summary:
+- App live at scramble-egg.vercel.app
+- Using OpenCode Zen API (free model: deepseek-v4-flash-free)
+- All AI features functional (categorize, digest, vision, mood)
+- README updated and pushed to GitHub
+
+---
+Task ID: 3 (Next)
+Phase 2: Google Drive Sync
+- Google OAuth (NextAuth) — login with Gmail
+- Google Drive API — store data as JSON in hidden app folder
+- Sync logic — auto-save on dump, auto-load on login
+- Tagline: "Your data lives in YOUR Google Drive. We never touch it."
+
+## Pending Features (Backlog)
+
+### 🔴 Phase 2 — Google Drive Sync (Next)
+- [ ] **Google OAuth (NextAuth)** — login with Gmail
+- [ ] **Google Drive API** — simpan data sebagai JSON di hidden app folder
+- [ ] **Sync logic** — auto-save on dump, auto-load on login
+- [ ] **Tagline**: "Your data lives in YOUR Google Drive. We never touch it."
+
+### 🟡 Core UX Improvements
+- [x] **Edit item text** — inline edit on expanded card, Ctrl+Enter to save, Escape to cancel
+- [x] **Export / backup** — download data sebagai JSON via dropdown, restore dari file JSON
+- [x] **Delete confirmation / undo** — hapus langsung + toast Undo (5 detik)
+- [x] **Drag & drop reorder** — dnd-kit sortable, drag handle via GripVertical icon
+- [x] **Bulk actions** — Select mode dengan floating toolbar (Done, Parkir, Hapus, Select All, Cancel)
+
+### 🟢 Stats & Dashboard
+- [ ] **Stats dashboard** — total dump, distribusi kategori, streak, grafik mingguan
+- [ ] **Sentiment tracking** — grafik mood trend dari AI analyze
+- [ ] **Daily recap** — AI rangkuman harian (seperti digest tapi harian)
+
+### 🔵 UX Polish
+- [ ] **Onboarding flow** — first-time user walkthrough (swipe/tap tutorial)
+- [ ] **Landing page** — halaman depan: hero, fitur, CTA sebelum masuk app
+- [ ] **PWA** — manifest + service worker, installable di HP
+
+### ⚪ Advanced
+- [ ] **Tags / custom labels** — kategori tambahan bebas dari user
+- [ ] **Daily check-in / reminder** — push notifikasi / scheduled
+- [ ] **Shareable mood image** — one-tap share ke IG/TikTok
+- [ ] **Public Vision Board** — share public link

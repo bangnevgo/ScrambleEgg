@@ -97,8 +97,11 @@ See [API docs](src/app/api/ai/) for request/response schemas.
 - [x] Voice input (Bahasa Indonesia)
 - [x] Smart search
 - [x] Weekly digest, Vision Board, Mood Board
-- [ ] Edit item text
-- [ ] Export / backup
+- [x] Edit item text
+- [x] Export / Backup (JSON)
+- [x] Delete confirmation (Undo toast)
+- [x] Drag & drop reorder
+- [x] Bulk actions (select, batch Done/Parkir/Delete)
 - [ ] Stats dashboard
 - [ ] PWA — installable on mobile
 - [ ] Auth + cloud sync
