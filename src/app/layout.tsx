@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Bangers, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -13,8 +13,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const bangers = Bangers({
+  variable: "--font-bangers",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Scramble Egg — Dump Your Brain, AI Organizes It 🍳",
+  title: "Scramble Egg — Dump Your Brain, AI Organizes It",
   description: "The chaotic productivity app that embraces your mess. Dump ideas, tasks, and thoughts — AI auto-organizes everything. No empty state anxiety, just pure brain dump.",
   keywords: ["Scramble Egg", "productivity", "brain dump", "AI organizer", "task management", "idea capture"],
   authors: [{ name: "Scramble Egg Team" }],
@@ -22,7 +35,7 @@ export const metadata: Metadata = {
     icon: "/logo.webp",
   },
   openGraph: {
-    title: "Scramble Egg — Dump Your Brain, AI Organizes It 🍳",
+    title: "Scramble Egg — Dump Your Brain, AI Organizes It",
     description: "The chaotic productivity app that embraces your mess.",
     type: "website",
   },
@@ -36,7 +49,7 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${bangers.variable} ${playfair.variable} antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster position="bottom-center" richColors />

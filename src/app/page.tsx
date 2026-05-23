@@ -153,7 +153,7 @@ function DumpBox() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Dump apapun yang ada di kepala... bebas, nggak perlu rapi 🧠"
+          placeholder="Dump apapun yang ada di kepala... bebas, nggak perlu rapi"
           className="w-full min-h-[120px] p-4 pr-24 rounded-2xl border-2 border-primary/20 bg-card text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-all text-base"
           disabled={isAiLoading}
         />
@@ -311,12 +311,19 @@ function ItemList({ filterCategory, searchQuery }: { filterCategory?: Category; 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-center py-16 space-y-4"
+        className="flex flex-col items-center justify-center py-12 space-y-6"
       >
-        <div className="text-6xl animate-egg-bounce inline-block">🍳</div>
+        <div className="flex-1" />
         <div>
-          <p className="text-lg font-semibold text-foreground">Belum ada yang di-dump!</p>
-          <p className="text-sm text-muted-foreground mt-1">Ketik apapun di atas, tekan ⚡ Dump — berantakan itu valid 💛</p>
+          <p className="text-xl font-display tracking-wide bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Belum ada yang di-dump!</p>
+          <p className="text-sm text-muted-foreground mt-2 font-serif italic">Ketik apapun di atas, tekan ⚡ Dump — berantakan itu valid</p>
+        </div>
+        <div className="animate-egg-bounce">
+          <img
+            src="/logo.webp"
+            alt="Scramble Egg"
+            className="w-36 h-36 object-contain drop-shadow-lg"
+          />
         </div>
       </motion.div>
     )
@@ -376,7 +383,7 @@ function WeeklyDigest() {
           className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold rounded-xl"
         >
           {digestLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
-          {digestLoading ? 'Menganalisis...' : '🧠 Weekly Digest'}
+          {digestLoading ? 'Menganalisis...' : 'Weekly Digest'}
         </Button>
         {latestDigest && !isOpen && (
           <Button variant="ghost" size="sm" onClick={() => setIsOpen(true)} className="text-xs">
@@ -395,8 +402,8 @@ function WeeklyDigest() {
             <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    🧠 Weekly Digest
+                  <CardTitle className="text-base font-display tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent flex items-center gap-2">
+                    Weekly Digest
                   </CardTitle>
                   <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="h-6 w-6 p-0">
                     ✕
@@ -409,7 +416,7 @@ function WeeklyDigest() {
                   <p className="text-sm leading-relaxed">{latestDigest.summary}</p>
                 </div>
                 <div>
-                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <h4 className="text-xs font-display tracking-wider text-muted-foreground uppercase mb-2 flex items-center gap-1">
                     <Target className="w-3 h-3" /> 3 Prioritas Minggu Ini
                   </h4>
                   <div className="space-y-2">
@@ -499,8 +506,8 @@ function SearchTab() {
           className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-primary/20 bg-card text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-base"
         />
       </div>
-      <div className="text-xs text-muted-foreground">
-        Pencarian di text maupun AI note — langsung filter + highlight ✨
+      <div className="text-xs text-muted-foreground font-serif italic">
+        Pencarian di text maupun AI note — langsung filter + highlight
       </div>
       <ItemList searchQuery={searchQuery} />
     </div>
@@ -561,11 +568,11 @@ function VisionTab() {
   return (
     <div className="space-y-5">
       <div className="text-center space-y-2">
-        <h2 className="text-xl font-bold flex items-center justify-center gap-2">
+        <h2 className="text-xl font-display tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 dark:from-amber-400 dark:via-orange-400 dark:to-rose-400 bg-clip-text text-transparent">
           <Eye className="w-5 h-5 text-primary" /> Vision Board
         </h2>
-        <p className="text-sm text-muted-foreground">
-          AI baca semua chaos-mu → generate visi yang powerful ✨
+        <p className="text-sm text-muted-foreground font-serif italic">
+          AI baca semua chaos-mu → generate visi yang powerful
         </p>
       </div>
 
@@ -588,8 +595,8 @@ function VisionTab() {
       </Button>
 
       {items.length < 3 && (
-        <p className="text-xs text-center text-muted-foreground">
-          Dump minimal 3 item dulu ya — makin banyak, makin akurat! 🍳
+        <p className="text-xs text-center text-muted-foreground font-serif italic">
+          Dump minimal 3 item dulu ya — makin banyak, makin akurat!
         </p>
       )}
 
@@ -627,8 +634,8 @@ function VisionTab() {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1 }}
               >
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Your Vision</p>
-                <h3 className="text-xl font-bold leading-snug bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 bg-clip-text text-transparent">
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2 font-serif">Your Vision</p>
+                <h3 className="text-2xl font-display tracking-wider leading-snug bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 dark:from-amber-400 dark:via-orange-400 dark:to-rose-400 bg-clip-text text-transparent">
                   &ldquo;{latestVision.headline}&rdquo;
                 </h3>
               </motion.div>
@@ -638,7 +645,7 @@ function VisionTab() {
           {/* Themes */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2">
                 <Flame className="w-4 h-4 text-orange-500" /> Tema Besar
               </CardTitle>
             </CardHeader>
@@ -663,8 +670,8 @@ function VisionTab() {
           {/* Word Cloud */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                ☁️ Word Cloud
+              <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2">
+                Word Cloud
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -691,8 +698,8 @@ function VisionTab() {
           {/* Affirmations */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                ✨ 3 Afirmasi Personal
+              <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2">
+                Afirmasi Personal
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -704,8 +711,8 @@ function VisionTab() {
                   transition={{ delay: 0.1 * i }}
                   className="flex items-start gap-3 p-3 rounded-xl bg-primary/5"
                 >
-                  <span className="text-lg mt-0.5">✨</span>
-                  <p className="text-sm font-medium italic leading-relaxed">&ldquo;{aff}&rdquo;</p>
+                  <span className="text-lg mt-0.5 text-amber-500">*</span>
+                  <p className="text-sm font-serif italic leading-relaxed">&ldquo;{aff}&rdquo;</p>
                 </motion.div>
               ))}
             </CardContent>
@@ -714,8 +721,8 @@ function VisionTab() {
           {/* Daily Mantra */}
           <Card className="border-2 border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent">
             <CardContent className="p-6 text-center space-y-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest">🌅 Daily Mantra</p>
-              <p className="text-lg font-bold leading-snug">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-serif">Daily Mantra</p>
+              <p className="text-lg font-display tracking-wider leading-snug bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 dark:from-amber-400 dark:via-orange-400 dark:to-rose-400 bg-clip-text text-transparent">
                 &ldquo;{latestVision.dailyMantra}&rdquo;
               </p>
               <Button
@@ -796,11 +803,11 @@ function MoodTab() {
   return (
     <div className="space-y-5">
       <div className="text-center space-y-2">
-        <h2 className="text-xl font-bold flex items-center justify-center gap-2">
-          😂 Scramble Mood
+        <h2 className="text-xl font-display tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 dark:from-amber-400 dark:via-orange-400 dark:to-rose-400 bg-clip-text text-transparent">
+          Scramble Mood
         </h2>
-        <p className="text-sm text-muted-foreground">
-          AI baca chaos-mu → generate gambar lucu yang relatable 🎨
+        <p className="text-sm text-muted-foreground font-serif italic">
+          AI baca chaos-mu → generate gambar lucu yang relatable
         </p>
       </div>
 
@@ -827,8 +834,8 @@ function MoodTab() {
       </div>
 
       {items.length < 2 && (
-        <p className="text-xs text-center text-muted-foreground">
-          Dump minimal 2 item dulu ya — makin banyak, makin personal gambarnya! 🍳
+        <p className="text-xs text-center text-muted-foreground font-serif italic">
+          Dump minimal 2 item dulu ya — makin banyak, makin personal gambarnya!
         </p>
       )}
 
@@ -838,7 +845,7 @@ function MoodTab() {
           <CardContent className="p-6 space-y-4">
             <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center">
               <div className="text-center space-y-3">
-                <div className="text-5xl animate-egg-bounce inline-block">🍳</div>
+                <div className="text-5xl animate-egg-bounce inline-block"><img src="/logo.webp" alt="Scramble Egg" className="w-16 h-16 object-contain" /></div>
                 <p className="text-sm text-muted-foreground">AI lagi masak gambar kamu...</p>
                 <div className="w-48 h-2 bg-muted-foreground/10 rounded-full overflow-hidden mx-auto">
                   <motion.div
@@ -909,7 +916,7 @@ function MoodTab() {
       {/* History */}
       {moodImages.length > 0 && !imageLoading && (
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-muted-foreground">Riwayat Mood</h3>
+          <h3 className="text-sm font-display tracking-wider text-muted-foreground">Riwayat Mood</h3>
           <div className="grid grid-cols-3 gap-2">
             {moodImages.slice(0, 6).map((mi) => (
               <button
@@ -976,8 +983,10 @@ export default function Home() {
                 />
               </div>
               <div>
-                <h1 className="text-lg font-bold leading-tight">Scramble Egg</h1>
-                <p className="text-[10px] text-muted-foreground leading-tight">Dump your brain, AI organizes it</p>
+                <h1 className="text-xl font-display tracking-wider leading-tight bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 dark:from-amber-400 dark:via-orange-400 dark:to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
+                  Scramble Egg
+                </h1>
+                <p className="text-[10px] text-muted-foreground leading-tight font-serif italic tracking-wide">Chaos Management</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -1054,8 +1063,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border/50 py-4">
         <div className="max-w-lg mx-auto px-4 text-center">
-          <p className="text-[10px] text-muted-foreground">
-            Scramble Egg 🍳 — Chaos is valid. AI organizes.
+          <p className="text-[10px] text-muted-foreground font-serif italic">
+            Scramble Egg — Chaos is valid. AI organizes.
           </p>
         </div>
       </footer>
