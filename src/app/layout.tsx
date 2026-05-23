@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Bangers, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -26,6 +27,18 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+const malamPoek = localFont({
+  src: [
+    {
+      path: "../fonts/MalamPoek.otf",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-malam-poek",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Scramble Egg — Dump Your Brain, AI Organizes It",
   description: "The chaotic productivity app that embraces your mess. Dump ideas, tasks, and thoughts — AI auto-organizes everything. No empty state anxiety, just pure brain dump.",
@@ -49,7 +62,7 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${bangers.variable} ${playfair.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${bangers.variable} ${playfair.variable} ${malamPoek.variable} antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster position="bottom-center" richColors />

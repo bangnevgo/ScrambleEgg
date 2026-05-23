@@ -1000,7 +1000,7 @@ export default function Home() {
                 className="h-10 w-auto object-contain drop-shadow-sm"
               />
               <div>
-                <h1 className="text-xl font-display tracking-wider leading-tight bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 dark:from-amber-400 dark:via-orange-400 dark:to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
+                <h1 className="text-xl tracking-wider leading-tight bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 dark:from-amber-400 dark:via-orange-400 dark:to-amber-500 bg-clip-text text-transparent drop-shadow-sm" style={{ fontFamily: 'var(--font-malam-poek)' }}>
                   Scramble Egg
                 </h1>
                 <p className="text-[10px] text-muted-foreground leading-tight font-serif italic tracking-wide">Chaos Management</p>
