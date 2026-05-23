@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive [&:hover]:translate-y-[-2px] [&:active]:scale-[0.95]",
   {
     variants: {
       variant: {
@@ -20,6 +20,11 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // Loading variant: shows disabled state with subtle background
+        loading:
+          "bg-primary/20 text-primary-foreground/50 cursor-not-allowed",
+        // Pill variant: fully rounded
+        pill: "rounded-full",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -35,23 +40,33 @@ const buttonVariants = cva(
   }
 )
 
+interface ButtonProps extends React.ComponentProps<"button">,
+  VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+  /**
+   * When true, the button is in a loading state (disabled and shows loading styles)
+   * Note: When loading, you should provide a loading indicator (e.g., spinner) as the button's children
+   */
+  loading?: boolean
+}
+
 function Button({
   className,
   variant,
   size,
   asChild = false,
+  loading = false,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
+}: ButtonProps) {
+  const { disabled, ...rest } = props
   const Comp = asChild ? Slot : "button"
 
   return (
     <Comp
       data-slot="button"
+      disabled={loading || disabled}
       className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
+      {...rest}
     />
   )
 }
