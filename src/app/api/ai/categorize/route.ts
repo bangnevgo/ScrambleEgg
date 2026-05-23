@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
+import { getAI } from '@/lib/ai'
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,8 +8,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 })
     }
 
-    const zai = await ZAI.create()
+    const zai = await getAI()
     const completion = await zai.chat.completions.create({
+      model: 'deepseek-v4-flash-free',
       messages: [
         {
           role: 'system',

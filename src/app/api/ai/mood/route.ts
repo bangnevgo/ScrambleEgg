@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
+import { getAI } from '@/lib/ai'
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,10 +23,11 @@ export async function POST(req: NextRequest) {
       'done-party': 'celebration art — pesta telur yang meriah karena banyak yang selesai',
     }
 
-    const zai = await ZAI.create()
+    const zai = await getAI()
 
     // Step 1: Generate image prompt
     const promptCompletion = await zai.chat.completions.create({
+      model: 'deepseek-v4-flash-free',
       messages: [
         {
           role: 'system',
