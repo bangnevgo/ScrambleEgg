@@ -332,11 +332,11 @@ function ItemList({ filterCategory, searchQuery }: { filterCategory?: Category; 
           <p className="text-xl font-display tracking-wide bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Belum ada yang di-dump!</p>
           <p className="text-sm text-muted-foreground mt-2 font-serif italic">Ketik apapun di atas, tekan ⚡ Dump — berantakan itu valid</p>
         </div>
-        <div className="animate-egg-bounce flex items-center justify-center rounded-3xl bg-white/10 dark:bg-white/5 border border-white/10 dark:border-white/5 backdrop-blur-sm p-4 shadow-lg">
+        <div className="animate-egg-bounce">
           <img
             src="/logo.webp"
             alt="Scramble Egg"
-            className="w-28 h-28 object-contain drop-shadow-md"
+            className="w-32 h-32 object-contain drop-shadow-lg"
           />
         </div>
       </motion.div>
@@ -859,7 +859,7 @@ function MoodTab() {
           <CardContent className="p-6 space-y-4">
             <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center">
               <div className="text-center space-y-3">
-                <div className="animate-egg-bounce inline-flex items-center justify-center rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 dark:border-white/5 backdrop-blur-sm p-2 shadow-md"><img src="/logo.webp" alt="Scramble Egg" className="w-14 h-14 object-contain" /></div>
+                <div className="animate-egg-bounce inline-block"><img src="/logo.webp" alt="Scramble Egg" className="w-16 h-16 object-contain drop-shadow-md" /></div>
                 <p className="text-sm text-muted-foreground">AI lagi masak gambar kamu...</p>
                 <div className="w-48 h-2 bg-muted-foreground/10 rounded-full overflow-hidden mx-auto">
                   <motion.div
@@ -994,13 +994,11 @@ export default function Home() {
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center h-10 w-10 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/10 dark:border-white/5 backdrop-blur-sm shadow-sm">
-                <img
-                  src="/logo.webp"
-                  alt="Scramble Egg"
-                  className="h-8 w-auto object-contain"
-                />
-              </div>
+              <img
+                src="/logo.webp"
+                alt="Scramble Egg"
+                className="h-10 w-auto object-contain drop-shadow-sm"
+              />
               <div>
                 <h1 className="text-xl font-display tracking-wider leading-tight bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 dark:from-amber-400 dark:via-orange-400 dark:to-amber-500 bg-clip-text text-transparent drop-shadow-sm">
                   Scramble Egg
