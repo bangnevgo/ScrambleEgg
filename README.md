@@ -1,6 +1,7 @@
 # 🍳 Scramble Egg
+### *Chaos Management App*
 
-**Chaos Management App** — Dump your brain, AI organizes.
+> **For minds that think in all directions at once.**
 
 🌐 [scramble-egg.vercel.app](https://scramble-egg.vercel.app)
 
@@ -8,67 +9,65 @@
 
 ## What is Scramble Egg?
 
-Scramble Egg is a personal chaos manager built for non-linear thinkers. Type anything, voice your thoughts — AI auto-categorizes, summarizes, and visualizes your mental state.
+Scramble Egg is a personal chaos manager built for the way creative, entrepreneurial minds actually work — **non-linear, fast, and always full**.
 
-Most productivity apps require structure *before* you can use them. Scramble Egg works the other way: dump first, organize never (AI does it for you).
+Most productivity apps are designed for organized people. Scramble Egg is designed for everyone else.
+
+**You dump. AI organizes. You focus.**
 
 ---
 
-## Features
+## Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **⚡ Instant Dump** | Zero-friction text input. Type anything, no folders, no structure |
-| **🤖 AI Auto-Categorize** | AI reads each dump and categorizes it: 💡Ide / ⚡Task / ⏳Pending / 🅿️Parking Lot / ✅Done |
-| **🎤 Voice Input** | Speak in Bahasa Indonesia — Web Speech API transcribes in real-time |
-| **🔍 Smart Search** | Full-text search across all dumps and AI notes with live highlighting |
-| **🧠 Weekly Digest** | AI summarizes your week + 3 prioritized actions + mood |
-| **🎨 Vision Board** | AI generates headline, themes, word cloud, affirmations, daily mantra from your dumps |
-| **😂 Scramble Mood** | AI creates a cute illustration of your mental state — 5 scenes, auto caption + hashtags, ready to share |
+### ⚡ Instant Dump
+Zero friction capture. Type anything, anytime. No folders, no categories, no structure required.
+
+### 🤖 AI Auto-Categorize
+Every item gets analyzed by AI and sorted into:
+- 💡 **Ide** — creative ideas and sparks
+- ⚡ **Task** — things that need doing now
+- ⏳ **Pending** — in progress or waiting
+- 🅿️ **Parking Lot** — good ideas, not yet the right time
+- ✅ **Done** — completed and celebrated
+
+### 🎤 Voice Input
+Speak in Bahasa Indonesia — Web Speech API transcribes and AI categorizes in real time.
+
+### 🔍 Smart Search
+Full-text search across item text and AI notes with live highlighting.
+
+### 🧠 Weekly Digest
+One tap. AI reads everything on your plate and gives you a summary, 3 prioritized actions, and your overall mood.
+
+### 🎨 Vision Board
+AI extracts themes and energy from your chaos and turns it into a personal vision board with headline, word cloud, affirmations, and daily mantra.
+
+### 😂 Scramble Mood
+AI reads your chaos level and generates a cute illustration of your mental state — 5 scenes, with auto caption + hashtags, ready to share.
 
 ---
 
 ## Tech Stack
 
-| Layer | Tech |
-|-------|------|
-| **Framework** | Next.js 16 + React 19 |
-| **Styling** | Tailwind CSS 4 + shadcn/ui |
-| **Animation** | Framer Motion |
-| **State** | Zustand (persisted to localStorage) |
-| **AI (Text)** | DeepSeek V4 Flash Free via OpenCode Zen |
-| **AI (Image)** | Pollinations AI |
-| **Deployment** | Vercel |
+| Frontend | AI | Deployment |
+|----------|----|-----------|
+| Next.js 16 + React 19 | DeepSeek V4 Flash Free (OpenCode Zen) | Vercel |
+| Tailwind CSS 4 + shadcn/ui | Pollinations AI (image gen) | |
+| Framer Motion + Zustand | | |
+| Web Speech API (voice) | | |
 
 ---
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 18+ or Bun
-- OpenCode Zen API key ([get one here](https://opencode.ai/auth))
-
-### Setup
-
 ```bash
-# Clone
 git clone https://github.com/bangnevgo/ScrambleEgg.git
 cd ScrambleEgg
-
-# Install dependencies
 bun install
-
-# Set up environment
-# Create .env.local (or configure ~/.z-ai-config):
-#   ZAI_API_KEY=oc-zen-your-key-here
-#   ZAI_BASE_URL=https://opencode.ai/zen/v1
-
-# Run dev server
 bun dev
 ```
 
-Visit `http://localhost:4000` in your browser.
+Environment: set `ZAI_API_KEY` (get at [opencode.ai/auth](https://opencode.ai/auth)) in `.env.local` or Vercel dashboard.
 
 ---
 
@@ -76,90 +75,43 @@ Visit `http://localhost:4000` in your browser.
 
 ```
 src/
-├── app/
-│   ├── api/ai/
-│   │   ├── categorize/route.ts   # AI categorizes text → category + note
-│   │   ├── digest/route.ts       # AI generates weekly summary
-│   │   ├── vision/route.ts       # AI generates vision board
-│   │   └── mood/route.ts         # AI generates image prompt + caption
-│   ├── globals.css               # Theme tokens + animations
-│   ├── layout.tsx                # Root layout with fonts
-│   └── page.tsx                  # Main app (Dump, Search, Vision, Mood tabs)
-├── components/ui/                # shadcn/ui components
-├── lib/
-│   ├── ai.ts                     # AI client (config via env / ~/.z-ai-config)
-│   ├── db.ts                     # Prisma client (future use)
-│   ├── design-token.ts           # CSS token utilities
-│   └── utils.ts                  # shadcn utils
-└── store/
-    └── useScrambleStore.ts       # Zustand state (items, digests, visions, moods)
+├── app/api/ai/          # categorize, digest, vision, mood
+├── components/ui/       # shadcn/ui components
+├── lib/                 # ai, db, utils
+└── store/               # zustand state
 ```
 
 ---
 
-## API Endpoints
+## API
 
-All AI endpoints are `POST /api/ai/{feature}`.
+All endpoints: `POST /api/ai/{categorize|digest|vision|mood}`
 
-### `POST /api/ai/categorize`
-```json
-{ "text": "string" }
-// → { "category": "ide|task|pending|parking", "note": "string" }
-```
-
-### `POST /api/ai/digest`
-```json
-{ "items": [{ "text": "string", "category": "string", "aiNote": "string" }] }
-// → { "summary": "string", "priorities": ["string"], "mood": "string" }
-```
-
-### `POST /api/ai/vision`
-```json
-{ "items": [{ "text": "string", "category": "string", "aiNote": "string" }] }
-// → { "headline": "string", "themes": ["string"], "wordCloud": ["string"],
-//     "affirmations": ["string"], "dailyMantra": "string" }
-```
-
-### `POST /api/ai/mood`
-```json
-{ "items": [{ "text": "string", "category": "string" }], "scene": "my-brain|me-today|me-this-week|my-parking-lot|done-party" }
-// → { "imageUrl": "string", "caption": "string", "hashtags": "string" }
-```
-
----
-
-## Deployment
-
-Deploy to Vercel with one click:
-
-1. Push to GitHub
-2. Import repo to [vercel.com](https://vercel.com)
-3. Set environment variable `ZAI_API_KEY`
-4. Deploy
+See [API docs](src/app/api/ai/) for request/response schemas.
 
 ---
 
 ## Roadmap
 
-- [x] Instant dump + AI categorize
+- [x] Dump + AI categorize
 - [x] Voice input (Bahasa Indonesia)
-- [x] Smart search with live highlight
-- [x] Weekly digest
-- [x] Vision board
-- [x] Scramble Mood image generator
+- [x] Smart search
+- [x] Weekly digest, Vision Board, Mood Board
 - [ ] Edit item text
-- [ ] Export / backup data
+- [ ] Export / backup
 - [ ] Stats dashboard
 - [ ] PWA — installable on mobile
 - [ ] Auth + cloud sync
 
 ---
 
-## The Philosophy
+## Philosophy
 
-> **Chaos isn't the enemy of productivity. Unmanaged chaos is.**
+Productivity culture has a toxic relationship with chaos. Everything has to be organized, color-coded, and reviewed weekly. But the most creative people don't work that way.
 
-Scramble Egg gives chaos a place to live — and AI to make sense of it.
+**Chaos isn't the enemy of productivity. Unmanaged chaos is.**
+
+Scramble Egg gives chaos a place to live — and AI to make sense of it — so your brain can stay free to do what it does best.
 
 *Berantakan itu valid. Yang penting tetap bergerak.*
 
